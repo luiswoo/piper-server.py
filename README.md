@@ -13,6 +13,6 @@
 
 Файл сервера piper-server.py и скрипта piper-spd-wrapper.sh нужно поместить в домашний каталог и сделать исполняемыми как программа.
 
-В читалку repy https://github.com/newptcai/repy сервер подключается через скрипт обёртку piper-spd-wrapper.sh напрямую (Через Speech Dispatcher подключить не получилось -- почему то читаются только отдельные слова) через параметр "preferred_tts_engine": "/home/user_name/piper-spd-wrapper.sh"
+В читалку repy https://github.com/newptcai/repy сервер подключается через скрипт обёртку piper-spd-wrapper.sh напрямую (Через Speech Dispatcher подключить не получилось -- почему то читаются только отдельные слова) через параметр в настройках "preferred_tts_engine": "/home/user_name/piper-spd-wrapper.sh"
 
 
