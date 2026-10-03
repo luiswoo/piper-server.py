@@ -20,7 +20,7 @@ VOICE = "ru_RU-igm3804-medium"
 #VOICE = "ru_RU-sushkov_v4-medium"
 #VOICE = "ru_RU-dict-medium_epoch3874"
 #VOICE = "ru_RU-sova200-medium"
-#VOICE = "ru_RU-pvo240-medium.onnx"
+#VOICE = "ru_RU-pvo240-medium"
 #VOICE = "ru_RU-april420-medium"
 #VOICE = "ru_RU-fr6800-medium"
 #VOICE = "ru_RU-igm3602-medium"
@@ -28,12 +28,12 @@ VOICE = "ru_RU-igm3804-medium"
 #VOICE = "ru_RU-kat580-medium"
 #VOICE = "ru_RU-mari-medium_epoch5699"
 #VOICE = "ru_RU-nara426-medium"
-#VOICE = "ru_RU-terra5871"
+#VOICE = "ru_RU-terra5871-medium"
 MODEL_PATH = str(VOICES_DIR / f"{VOICE}.onnx")
 CONFIG_PATH = str(VOICES_DIR / f"{VOICE}.onnx.json")
 
 # ===== НАСТРОЙКИ РЕЧИ =====
-LENGTH_SCALE = 1.2      # < 1.0 — быстрее/выше тон, > 1.0 — медленнее/ниже тон (больше число — медленее)
+LENGTH_SCALE = 1.3      # < 1.0 — быстрее/выше тон, > 1.0 — медленнее/ниже тон (больше число — медленее)
 NOISE_SCALE = 0.667     # "волнистость" голоса
 NOISE_W_SCALE = 0.8     # вариативность ширины фонем (было ошибочно noise_w)
 VOLUME = 1.0            # громкость
