@@ -1,46 +1,68 @@
 #!/bin/bash
-TEXT="$1"
 
-# Если текст пустой, сразу выходим
+# Универсальный приём текста
+if [ -t 0 ]; then
+    # Вызвали напрямую (repy) → текст в $1, скорость опционально в $2
+    TEXT="$1"
+    SD_RATE="${2:-0}"
+else
+    # Вызвали через pipe (Speech Dispatcher / Foliate)
+    SD_RATE="${1:-0}"
+    TEXT=$(cat)
+fi
+
 if [ -z "$TEXT" ]; then
     exit 0
 fi
 
-# === БЛОК ОЧИСТКИ И ПОДГОТОВКИ ТЕКСТА ===
-# 1. ХАК ДЛЯ ПАУЗЫ: Заменяем троеточие на "точка запятая" для гарантированной заметной паузы
-# (Можно поменять на просто ".", если нужна пауза как в конце предложения)
+# Проверка, что SD_RATE — число
+if ! [[ "$SD_RATE" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+    SD_RATE=0
+fi
+
+# === ОЧИСТКА ТЕКСТА ===
 TEXT="${TEXT//…/. ,}"
 TEXT="${TEXT//.../. ,}"
-
-# 2. Удаляем символы решетки
-TEXT="${TEXT//##/}"
+#TEXT="${TEXT//##/}"
 TEXT="${TEXT//#/}"
+TEXT="${TEXT//\*/}"
+TEXT="${TEXT//‽/?!}"
+TEXT="${TEXT//⁈/?!}"
+TEXT="${TEXT//«/\"}"
+TEXT="${TEXT//»/\"}"
+TEXT="${TEXT//“/\"}"
+TEXT="${TEXT//”/\"}"
+TEXT="${TEXT//‘/\'}"
+TEXT="${TEXT//’/\'}"
 
-# 3. Удаляем кавычки по краям
-TEXT="${TEXT#\"}"
-TEXT="${TEXT%\"}"
+# Безопасная обработка через printf
+TEXT=$(printf "%s" "$TEXT" | sed -E 's/<[^>]*>//g')
+TEXT=$(printf "%s" "$TEXT" | tr -d '\000-\010\013\014\016-\037')
+TEXT=$(printf "%s" "$TEXT" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-# 4. Убираем лишние пробелы в начале и в конце строки
-TEXT=$(echo "$TEXT" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-# Если после очистки текст стал пустым или короче 2 символов, просто выходим
 if [ -z "$TEXT" ] || [ ${#TEXT} -lt 2 ]; then
     exit 0
 fi
 
-# Уникальное имя файла
 OUTPUT="/tmp/speechd_$(date +%s%N).wav"
 
-# Запрашиваем синтез у сервера Piper (порт 5555)
+# Получаем скорость от Speech Dispatcher (или 0, если её нет)
+SD_RATE="${SPEECHD_RATE:-${RATE:-0}}"
+
+# Проверка, что это число
+if ! [[ "$SD_RATE" =~ ^-?[0-9]+$ ]]; then
+    SD_RATE=0
+fi
+
+# Отправляем запрос на сервер, передавая sd_rate
 curl -s -G "http://127.0.0.1:5555/" \
   --data-urlencode "text=$TEXT" \
-  --data-urlencode "output=$OUTPUT" > /dev/null 2>&1
+  --data-urlencode "output=$OUTPUT" \
+  --data-urlencode "sd_rate=$SD_RATE" > /dev/null 2>&1
 
-# Если файл создан и не пуст, проигрываем его и удаляем
 if [ -f "$OUTPUT" ] && [ -s "$OUTPUT" ]; then
     aplay -q "$OUTPUT" 2>/dev/null
     rm -f "$OUTPUT"
 fi
 
-# Гарантированный успешный выход
 exit 0
