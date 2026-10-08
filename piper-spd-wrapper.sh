@@ -15,8 +15,8 @@ if [ -z "$TEXT" ]; then
     exit 0
 fi
 
-# Проверка, что SD_RATE — число
-if ! [[ "$SD_RATE" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+# Проверка, что SD_RATE — число (целое или дробное, возможно отрицательное)
+if ! [[ "$SD_RATE" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; then
     SD_RATE=0
 fi
 
@@ -46,15 +46,13 @@ fi
 
 OUTPUT="/tmp/speechd_$(date +%s%N).wav"
 
-# Получаем скорость от Speech Dispatcher (или 0, если её нет)
-SD_RATE="${SPEECHD_RATE:-${RATE:-0}}"
+# ВАЖНО: НЕ перезаписываем SD_RATE переменными окружения.
+# Speech Dispatcher передаёт скорость как $1, а не через env.
+# Если хотите дать возможность переопределить через env — используйте:
+# SD_RATE="${SD_RATE:-${SPEECHD_RATE:-${RATE:-0}}}"
+# но обычно это не нужно.
 
-# Проверка, что это число
-if ! [[ "$SD_RATE" =~ ^-?[0-9]+$ ]]; then
-    SD_RATE=0
-fi
-
-# Отправляем запрос на сервер, передавая sd_rate
+# Отправляем запрос на сервер, передавая sd_rate (может быть дробным)
 curl -s -G "http://127.0.0.1:5555/" \
   --data-urlencode "text=$TEXT" \
   --data-urlencode "output=$OUTPUT" \
