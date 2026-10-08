@@ -65,7 +65,7 @@ class TTSHandler(BaseHTTPRequestHandler):
 
         # 1. Получаем "сырую" скорость от bash-скрипта (по умолчанию 0)
         try:
-            sd_rate = int(params.get('sd_rate', ['0'])[0])
+            sd_rate = float(params.get('sd_rate', ['0'])[0])
         except ValueError:
             sd_rate = 0
 
